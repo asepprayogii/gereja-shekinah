@@ -1,0 +1,28 @@
+<?php
+
+use Illuminate\Database\Migrations\Migration;
+use Illuminate\Database\Schema\Blueprint;
+use Illuminate\Support\Facades\Schema;
+
+return new class extends Migration
+{
+    public function up(): void
+    {
+        Schema::table('tukar_jadwal', function (Blueprint $table) {
+            $table->foreignId('jadwal_minggu_id')
+                  ->nullable()
+                  ->after('jadwal_id')
+                  ->constrained('jadwal_ibadah_minggu')
+                  ->nullOnDelete();
+            $table->string('tipe')->default('pelayanan')->after('jadwal_minggu_id'); // pelayanan / minggu
+        });
+    }
+
+    public function down(): void
+    {
+        Schema::table('tukar_jadwal', function (Blueprint $table) {
+            $table->dropForeign(['jadwal_minggu_id']);
+            $table->dropColumn(['jadwal_minggu_id', 'tipe']);
+        });
+    }
+};
