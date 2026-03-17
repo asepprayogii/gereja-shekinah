@@ -1,4 +1,3 @@
-cat > app/Http/Controllers/Admin/SlideshowController.php << 'EOF'
 <?php
 
 namespace App\Http\Controllers\Admin;
@@ -40,10 +39,8 @@ class SlideshowController extends Controller
     public function destroy($id)
     {
         $slide = HeroSlideshow::findOrFail($id);
-
         $publicId = pathinfo(parse_url($slide->foto, PHP_URL_PATH), PATHINFO_FILENAME);
         Cloudinary::destroy('gereja-shekinah/slideshow/' . $publicId);
-
         $slide->delete();
 
         HeroSlideshow::orderBy('urutan')->get()->each(function ($s, $i) {
@@ -77,4 +74,3 @@ class SlideshowController extends Controller
         return response()->json(['success' => true]);
     }
 }
-EOF
