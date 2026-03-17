@@ -67,8 +67,8 @@ class PublikController extends Controller
     public function jadwalIbadah()
     {
         // ✅ Jadwal Rutin (yang aktif) - gunakan fully qualified name atau import
-        $rutinAktif = \App\Models\JadwalRutin::where('is_active', true)
-            ->orderBy('hari_urutan')
+        $rutinAktif = \App\Models\JadwalTemplate::where('is_active', true)
+            ->orderBy('hari_id')
             ->orderBy('jam_mulai')
             ->get();
 
