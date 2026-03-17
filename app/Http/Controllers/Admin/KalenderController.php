@@ -171,8 +171,18 @@ class KalenderController extends Controller
     public function destroyTemplate($id)
     {
         $template = \App\Models\JadwalTemplate::findOrFail($id);
+
+        // Hapus juga kegiatan minggu ini yang berasal dari template ini
+        $startOfWeek = \Carbon\Carbon::now()->startOfWeek(\Carbon\Carbon::MONDAY);
+        $endOfWeek   = $startOfWeek->copy()->endOfWeek();
+
+        Kegiatan::where('nama_kegiatan', $template->nama_kegiatan)
+            ->whereBetween('tanggal', [$startOfWeek, $endOfWeek])
+            ->delete();
+
         $template->delete();
-        return redirect()->route('admin.kalender')->with('success', 'Template rutin berhasil dihapus!');
+
+        return redirect()->route('admin.kalender')->with('success', 'Template rutin dan kegiatan minggu ini berhasil dihapus!');
     }
 
     public function updateTemplate(Request $request, $id)

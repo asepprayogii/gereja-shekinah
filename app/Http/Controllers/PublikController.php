@@ -74,7 +74,7 @@ class PublikController extends Controller
 
         // ✅ Kegiatan Khusus (yang aktif, paginate)
         $kegiatan = \App\Models\Kegiatan::where('is_active', true)
-            ->whereDate('tanggal', '>=', now()->startOfMonth())
+            ->whereDate('tanggal', '>=', now()->subMonths(1)->startOfMonth())
             ->orderBy('tanggal')
             ->orderBy('jam_mulai')
             ->paginate(20);
