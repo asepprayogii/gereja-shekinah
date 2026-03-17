@@ -1,4 +1,3 @@
-cat > app/Http/Controllers/Admin/GaleriController.php << 'EOF'
 <?php
 
 namespace App\Http\Controllers\Admin;
@@ -41,15 +40,11 @@ class GaleriController extends Controller
     public function destroy($id)
     {
         $galeri = Galeri::findOrFail($id);
-
-        // Hapus dari Cloudinary pakai public_id
         $publicId = pathinfo(parse_url($galeri->foto, PHP_URL_PATH), PATHINFO_FILENAME);
         Cloudinary::destroy('gereja-shekinah/galeri/' . $publicId);
-
         $galeri->delete();
 
         return redirect()->route('admin.galeri')
             ->with('success', 'Foto berhasil dihapus!');
     }
 }
-EOF
