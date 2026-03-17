@@ -147,7 +147,7 @@ class KalenderController extends Controller
     {
         $request->validate([
             'nama_kegiatan' => 'required|string|max:255',
-            'hari_id'       => 'required|integer|between:1,7',
+            'hari'       => 'required|integer|between:1,7',
             'jam_mulai'     => 'required',
             'lokasi'        => 'nullable|string|max:255',
             'jenis'         => 'nullable|string|max:100',
@@ -157,7 +157,7 @@ class KalenderController extends Controller
 
         \App\Models\JadwalTemplate::create([
             'nama_kegiatan' => $request->nama_kegiatan,
-            'hari_id'       => $request->hari_id,
+            'hari'       => $request->hari_id,
             'nama_hari'     => $hariNama[$request->hari_id - 1],
             'jam_mulai'     => $request->jam_mulai,
             'lokasi'        => $request->lokasi,
