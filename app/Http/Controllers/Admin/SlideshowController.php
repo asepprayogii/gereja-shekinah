@@ -1,3 +1,4 @@
+cat > app/Http/Controllers/Admin/SlideshowController.php << 'EOF'
 <?php
 
 namespace App\Http\Controllers\Admin;
@@ -5,7 +6,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\HeroSlideshow;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class SlideshowController extends Controller
 {
@@ -21,10 +22,12 @@ class SlideshowController extends Controller
             'foto' => 'required|image|mimes:jpg,jpeg,png,webp|max:3072',
         ]);
 
-        $path = $request->file('foto')->store('slideshow', 'public');
+        $uploaded = Cloudinary::upload($request->file('foto')->getRealPath(), [
+            'folder' => 'gereja-shekinah/slideshow'
+        ]);
 
         HeroSlideshow::create([
-            'foto'            => $path,
+            'foto'            => $uploaded->getSecurePath(),
             'urutan'          => HeroSlideshow::count() + 1,
             'object_position' => $request->object_position ?? 'center',
             'is_active'       => $request->has('is_active'),
@@ -37,10 +40,12 @@ class SlideshowController extends Controller
     public function destroy($id)
     {
         $slide = HeroSlideshow::findOrFail($id);
-        Storage::disk('public')->delete($slide->foto);
+
+        $publicId = pathinfo(parse_url($slide->foto, PHP_URL_PATH), PATHINFO_FILENAME);
+        Cloudinary::destroy('gereja-shekinah/slideshow/' . $publicId);
+
         $slide->delete();
 
-        // Reindex urutan setelah hapus
         HeroSlideshow::orderBy('urutan')->get()->each(function ($s, $i) {
             $s->update(['urutan' => $i + 1]);
         });
@@ -58,7 +63,6 @@ class SlideshowController extends Controller
             ->with('success', 'Status foto berhasil diubah!');
     }
 
-    // Dipanggil via AJAX dari drag & drop
     public function reorder(Request $request)
     {
         $request->validate([
@@ -73,3 +77,4 @@ class SlideshowController extends Controller
         return response()->json(['success' => true]);
     }
 }
+EOF

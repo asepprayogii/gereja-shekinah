@@ -1,3 +1,4 @@
+cat > app/Http/Controllers/Admin/GaleriController.php << 'EOF'
 <?php
 
 namespace App\Http\Controllers\Admin;
@@ -5,7 +6,7 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Galeri;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
 
 class GaleriController extends Controller
 {
@@ -22,13 +23,15 @@ class GaleriController extends Controller
             'judul' => 'nullable|string|max:255',
         ]);
 
-        $path = $request->file('foto')->store('galeri', 'public');
+        $uploaded = Cloudinary::upload($request->file('foto')->getRealPath(), [
+            'folder' => 'gereja-shekinah/galeri'
+        ]);
 
         Galeri::create([
-            'judul'           => $request->judul,
-            'foto'            => $path,
-            'kategori'        => $request->kategori,
-            'tanggal_kegiatan'=> $request->tanggal_kegiatan,
+            'judul'            => $request->judul,
+            'foto'             => $uploaded->getSecurePath(),
+            'kategori'         => $request->kategori,
+            'tanggal_kegiatan' => $request->tanggal_kegiatan,
         ]);
 
         return redirect()->route('admin.galeri')
@@ -38,10 +41,15 @@ class GaleriController extends Controller
     public function destroy($id)
     {
         $galeri = Galeri::findOrFail($id);
-        Storage::disk('public')->delete($galeri->foto);
+
+        // Hapus dari Cloudinary pakai public_id
+        $publicId = pathinfo(parse_url($galeri->foto, PHP_URL_PATH), PATHINFO_FILENAME);
+        Cloudinary::destroy('gereja-shekinah/galeri/' . $publicId);
+
         $galeri->delete();
 
         return redirect()->route('admin.galeri')
             ->with('success', 'Foto berhasil dihapus!');
     }
 }
+EOF
