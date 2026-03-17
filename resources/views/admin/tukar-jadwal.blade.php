@@ -214,6 +214,7 @@
                             {{-- Form Approve --}}
                             <form action="{{ route('admin.tukar-jadwal.approve', $r->id) }}" method="POST" class="w-full md:w-auto">
                                 @csrf
+                                @method('PATCH')
                                 <input type="text" name="catatan_admin"
                                        class="hidden md:block w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-2 focus:outline-none focus:ring-2 focus:ring-green-300 bg-white"
                                        placeholder="Catatan...">
@@ -229,6 +230,7 @@
                             {{-- Form Reject --}}
                             <form action="{{ route('admin.tukar-jadwal.reject', $r->id) }}" method="POST" class="w-full md:w-auto">
                                 @csrf
+                                @method('PATCH')
                                 <input type="text" name="catatan_admin"
                                        class="hidden md:block w-full border border-gray-200 rounded-lg px-3 py-1.5 text-xs mb-2 focus:outline-none focus:ring-2 focus:ring-red-300 bg-white"
                                        placeholder="Alasan...">
