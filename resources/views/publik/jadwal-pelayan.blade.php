@@ -134,6 +134,18 @@
                 @endforeach
             </div>
         </div>
+        @else
+        <div>
+            <div class="flex items-center gap-3 mb-4">
+                <span class="text-[10px] font-bold uppercase tracking-widest text-gray-400 whitespace-nowrap">{{ $grupNama }}</span>
+                <div class="flex-1 h-px bg-gray-100"></div>
+            </div>
+            <div class="flex justify-center">
+                <div class="bg-gray-50 border border-dashed border-gray-200 rounded-2xl px-6 py-4 text-center w-full max-w-xs">
+                    <p class="text-xs text-gray-400 italic">Pelayan belum ada</p>
+                </div>
+            </div>
+        </div>
         @endif
         @endforeach
     </div>
