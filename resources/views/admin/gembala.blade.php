@@ -33,11 +33,11 @@
     @endphp
 
     {{-- KARTU GEMBALA --}}
-    <div onclick="openModal({{ $gembala?->id ?? 'null' }}, 'Gembala', {{ json_encode($gembala?->nama) }}, {{ json_encode($gembala?->bio) }}, {{ $gembala?->foto ? json_encode(asset('storage/'.$gembala->foto)) : 'null' }})"
+    <div onclick="openModal({{ $gembala?->id ?? 'null' }}, 'Gembala', {{ json_encode($gembala?->nama) }}, {{ json_encode($gembala?->bio) }}, {{ $gembala?->foto ? json_encode($gembala->foto) : 'null' }})"
          class="bg-white border border-gray-100 rounded-2xl p-5 text-center cursor-pointer hover:shadow-md hover:border-blue-100 transition group">
         <div class="relative w-24 h-24 mx-auto mb-4">
             @if($gembala?->foto)
-            <img src="{{ asset('storage/' . $gembala->foto) }}" alt="{{ $gembala->nama }}"
+            <img src="{{ $gembala->foto }}" alt="{{ $gembala->nama }}"
                  class="w-24 h-24 rounded-full object-cover ring-2 ring-white shadow-md">
             @else
             <div class="w-24 h-24 rounded-full bg-gradient-to-br from-blue-50 to-blue-100 flex items-center justify-center ring-2 ring-white shadow-md">
@@ -64,11 +64,11 @@
     </div>
 
     {{-- KARTU IBU GEMBALA --}}
-    <div onclick="openModal({{ $ibuGembala?->id ?? 'null' }}, 'Ibu Gembala', {{ json_encode($ibuGembala?->nama) }}, {{ json_encode($ibuGembala?->bio) }}, {{ $ibuGembala?->foto ? json_encode(asset('storage/'.$ibuGembala->foto)) : 'null' }})"
+    <div onclick="openModal({{ $ibuGembala?->id ?? 'null' }}, 'Ibu Gembala', {{ json_encode($ibuGembala?->nama) }}, {{ json_encode($ibuGembala?->bio) }}, {{ $ibuGembala?->foto ? json_encode($ibuGembala->foto) : 'null' }})"
          class="bg-white border border-gray-100 rounded-2xl p-5 text-center cursor-pointer hover:shadow-md hover:border-pink-100 transition group">
         <div class="relative w-24 h-24 mx-auto mb-4">
             @if($ibuGembala?->foto)
-            <img src="{{ asset('storage/' . $ibuGembala->foto) }}" alt="{{ $ibuGembala->nama }}"
+            <img src="{{ $ibuGembala->foto }}" alt="{{ $ibuGembala->nama }}"
                  class="w-24 h-24 rounded-full object-cover ring-2 ring-white shadow-md">
             @else
             <div class="w-24 h-24 rounded-full bg-gradient-to-br from-pink-50 to-pink-100 flex items-center justify-center ring-2 ring-white shadow-md">
@@ -101,11 +101,11 @@
             $nomor = $i + 1;
             $peran = 'Anak ' . $nomor;
         @endphp
-        <div onclick="openModal({{ $anak?->id ?? 'null' }}, '{{ $peran }}', {{ json_encode($anak?->nama) }}, {{ json_encode($anak?->bio) }}, {{ $anak?->foto ? json_encode(asset('storage/'.$anak->foto)) : 'null' }})"
+        <div onclick="openModal({{ $anak?->id ?? 'null' }}, '{{ $peran }}', {{ json_encode($anak?->nama) }}, {{ json_encode($anak?->bio) }}, {{ $anak?->foto ? json_encode($anak->foto) : 'null' }})"
              class="bg-white border border-gray-100 rounded-2xl p-5 text-center cursor-pointer hover:shadow-md hover:border-purple-100 transition group">
             <div class="relative w-24 h-24 mx-auto mb-4">
                 @if($anak?->foto)
-                <img src="{{ asset('storage/' . $anak->foto) }}" alt="{{ $anak->nama }}"
+                <img src="{{ $anak->foto }}" alt="{{ $anak->nama }}"
                      class="w-24 h-24 rounded-full object-cover ring-2 ring-white shadow-md">
                 @else
                 <div class="w-24 h-24 rounded-full bg-gradient-to-br from-purple-50 to-purple-100 flex items-center justify-center ring-2 ring-white shadow-md">

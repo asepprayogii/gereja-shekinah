@@ -5,7 +5,8 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\KeluargaGembala;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
 
 class KeluargaGembalaController extends Controller
 {
@@ -17,9 +18,22 @@ class KeluargaGembalaController extends Controller
         ['peran' => 'Anak 3',      'urutan' => 5],
     ];
 
+    private function getCloudinary()
+    {
+        return new Cloudinary(
+            Configuration::instance([
+                'cloud' => [
+                    'cloud_name' => config('cloudinary.cloud_name'),
+                    'api_key'    => config('cloudinary.api_key'),
+                    'api_secret' => config('cloudinary.api_secret'),
+                ],
+                'url' => ['secure' => true]
+            ])
+        );
+    }
+
     public function index()
     {
-        // Migrasi data lama: "Anak Gembala" → "Anak 1", "Anak 2", dst
         $anakLama = KeluargaGembala::where('peran', 'Anak Gembala')->orderBy('urutan')->get();
         foreach ($anakLama as $i => $anak) {
             $nomorAnak = $i + 1;
@@ -28,7 +42,6 @@ class KeluargaGembalaController extends Controller
             }
         }
 
-        // Auto-generate slot yang belum ada
         foreach (self::PERAN_LIST as $slot) {
             KeluargaGembala::firstOrCreate(
                 ['peran' => $slot['peran']],
@@ -56,12 +69,31 @@ class KeluargaGembalaController extends Controller
         ];
 
         if ($request->hasFile('foto')) {
-            if ($anggota->foto) Storage::disk('public')->delete($anggota->foto);
-            $data['foto'] = $request->file('foto')->store('gembala', 'public');
+            // Hapus foto lama dari Cloudinary jika ada
+            if ($anggota->foto && str_starts_with($anggota->foto, 'http')) {
+                $path = parse_url($anggota->foto, PHP_URL_PATH);
+                preg_match('/upload\/(?:v\d+\/)?(.+)\.\w+$/', $path, $matches);
+                if (!empty($matches[1])) {
+                    $this->getCloudinary()->uploadApi()->destroy($matches[1]);
+                }
+            }
+
+            // Upload foto baru ke Cloudinary
+            $result = $this->getCloudinary()->uploadApi()->upload(
+                $request->file('foto')->getRealPath(),
+                ['folder' => 'gereja-shekinah/gembala']
+            );
+            $data['foto'] = $result['secure_url'];
         }
 
         if ($request->boolean('hapus_foto') && $anggota->foto) {
-            Storage::disk('public')->delete($anggota->foto);
+            if (str_starts_with($anggota->foto, 'http')) {
+                $path = parse_url($anggota->foto, PHP_URL_PATH);
+                preg_match('/upload\/(?:v\d+\/)?(.+)\.\w+$/', $path, $matches);
+                if (!empty($matches[1])) {
+                    $this->getCloudinary()->uploadApi()->destroy($matches[1]);
+                }
+            }
             $data['foto'] = null;
         }
 

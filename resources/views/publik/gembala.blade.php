@@ -83,8 +83,8 @@
         @if($gembalaPria)
         <div class="member-card flex flex-col items-center text-center">
             <div class="photo-parent ring-parent rounded-full overflow-hidden mb-4 bg-blue-50 flex items-center justify-center border-4 border-blue-100">
-                @if($gembalaPria->foto && file_exists(public_path('storage/'.$gembalaPria->foto)))
-                    <img src="{{ asset('storage/'.$gembalaPria->foto) }}"
+                @if($gembalaPria->foto && str_starts_with($gembalaPria->foto ?? '', 'http'))
+                    <img src="{{ $gembalaPria->foto }}"
                          alt="{{ $gembalaPria->nama }}"
                          class="w-full h-full object-cover"
                          loading="lazy">
@@ -111,8 +111,8 @@
         @if($gembalaWanita)
         <div class="member-card flex flex-col items-center text-center">
             <div class="photo-parent ring-parent rounded-full overflow-hidden mb-4 bg-pink-50 flex items-center justify-center border-4 border-pink-100">
-                @if($gembalaWanita->foto && file_exists(public_path('storage/'.$gembalaWanita->foto)))
-                    <img src="{{ asset('storage/'.$gembalaWanita->foto) }}"
+                @if($gembalaWanita->foto && str_starts_with($gembalaWanita->foto ?? '', 'http'))
+                    <img src="{{ $gembalaWanita->foto }}"
                          alt="{{ $gembalaWanita->nama }}"
                          class="w-full h-full object-cover"
                          loading="lazy">
@@ -156,8 +156,8 @@
         @foreach($anakAnak as $anak)
         <div class="member-card flex flex-col items-center text-center w-20 sm:w-24">
             <div class="photo-child ring-child rounded-full overflow-hidden mb-3 bg-gray-50 flex items-center justify-center border-2 border-gray-100">
-                @if($anak->foto && file_exists(public_path('storage/'.$anak->foto)))
-                    <img src="{{ asset('storage/'.$anak->foto) }}"
+                @if($anak->foto && str_starts_with($anak->foto ?? '', 'http'))
+                    <img src="{{ $anak->foto }}"
                          alt="{{ $anak->nama }}"
                          class="w-full h-full object-cover"
                          loading="lazy">
