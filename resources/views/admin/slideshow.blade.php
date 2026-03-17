@@ -140,7 +140,7 @@
 
             {{-- Foto --}}
             <div class="relative h-36 bg-gray-100">
-                <img src="{{ asset('storage/' . $slide->foto) }}"
+                <img src="{{ $slide->foto }}"
                      alt="Slide {{ $loop->iteration }}"
                      class="w-full h-full object-cover pointer-events-none"
                      style="object-position: {{ $slide->object_position ?? 'center' }}">
