@@ -40,7 +40,7 @@
         {{-- Foto Profil --}}
         <div class="relative inline-block mb-3">
             @if(auth()->user()->foto)
-            <img src="{{ asset('storage/' . auth()->user()->foto) }}"
+            <img src="{{ auth()->user()->foto }}"
                  alt="Foto Profil"
                  class="w-28 h-28 rounded-full object-cover border-4 border-white/30 shadow-lg">
             @else

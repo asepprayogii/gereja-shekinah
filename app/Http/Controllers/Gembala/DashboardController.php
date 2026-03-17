@@ -8,15 +8,42 @@ use App\Models\Pengumuman;
 use App\Models\Kegiatan;
 use App\Models\TukarJadwal;
 use Illuminate\Http\Request;
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
 
 class DashboardController extends Controller
 {
+    private function getCloudinary()
+    {
+        return new Cloudinary(
+            Configuration::instance([
+                'cloud' => [
+                    'cloud_name' => config('cloudinary.cloud_name'),
+                    'api_key'    => config('cloudinary.api_key'),
+                    'api_secret' => config('cloudinary.api_secret'),
+                ],
+                'url' => ['secure' => true]
+            ])
+        );
+    }
+
+    private function hapusDariCloudinary($fotoUrl)
+    {
+        if ($fotoUrl && str_starts_with($fotoUrl, 'http')) {
+            $path = parse_url($fotoUrl, PHP_URL_PATH);
+            preg_match('/upload\/(?:v\d+\/)?(.+)\.\w+$/', $path, $matches);
+            if (!empty($matches[1])) {
+                $this->getCloudinary()->uploadApi()->destroy($matches[1]);
+            }
+        }
+    }
+
     public function index()
     {
-        $totalRenungan  = Renungan::where('user_id', auth()->id())->count();
-        $totalPengumuman = Pengumuman::where('user_id', auth()->id())->count();
+        $totalRenungan    = Renungan::where('user_id', auth()->id())->count();
+        $totalPengumuman  = Pengumuman::where('user_id', auth()->id())->count();
         $kegiatanMingguIni = Kegiatan::mingguIni()->count();
-        $renunganTerbaru = Renungan::where('user_id', auth()->id())
+        $renunganTerbaru  = Renungan::where('user_id', auth()->id())
                             ->orderBy('tanggal_publish', 'desc')
                             ->take(3)->get();
 
@@ -57,8 +84,7 @@ class DashboardController extends Controller
 
     public function editRenungan($id)
     {
-        $renungan = Renungan::where('user_id', auth()->id())
-                    ->findOrFail($id);
+        $renungan = Renungan::where('user_id', auth()->id())->findOrFail($id);
         return view('gembala.renungan-edit', compact('renungan'));
     }
 
@@ -143,11 +169,12 @@ class DashboardController extends Controller
         ];
 
         if ($request->hasFile('foto')) {
-            // Hapus foto lama
-            if (auth()->user()->foto) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete(auth()->user()->foto);
-            }
-            $data['foto'] = $request->file('foto')->store('profil', 'public');
+            $this->hapusDariCloudinary(auth()->user()->foto);
+            $result = $this->getCloudinary()->uploadApi()->upload(
+                $request->file('foto')->getRealPath(),
+                ['folder' => 'gereja-shekinah/profil']
+            );
+            $data['foto'] = $result['secure_url'];
         }
 
         auth()->user()->update($data);

@@ -15,7 +15,7 @@
         @foreach($program as $p)
         <div class="bg-white rounded-2xl shadow-sm border border-gray-100 overflow-hidden hover:shadow-md transition">
             @if($p->foto)
-            <img src="{{ asset('storage/' . $p->foto) }}"
+            <img src="{{ $p->foto }}"
                  alt="{{ $p->nama_program }}"
                  class="w-full h-48 object-cover">
             @else

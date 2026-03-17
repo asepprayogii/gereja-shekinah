@@ -5,10 +5,36 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\ProgramGereja;
 use Illuminate\Http\Request;
-use Illuminate\Support\Facades\Storage;
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
 
 class ProgramController extends Controller
 {
+    private function getCloudinary()
+    {
+        return new Cloudinary(
+            Configuration::instance([
+                'cloud' => [
+                    'cloud_name' => config('cloudinary.cloud_name'),
+                    'api_key'    => config('cloudinary.api_key'),
+                    'api_secret' => config('cloudinary.api_secret'),
+                ],
+                'url' => ['secure' => true]
+            ])
+        );
+    }
+
+    private function hapusDariCloudinary($fotoUrl)
+    {
+        if ($fotoUrl && str_starts_with($fotoUrl, 'http')) {
+            $path = parse_url($fotoUrl, PHP_URL_PATH);
+            preg_match('/upload\/(?:v\d+\/)?(.+)\.\w+$/', $path, $matches);
+            if (!empty($matches[1])) {
+                $this->getCloudinary()->uploadApi()->destroy($matches[1]);
+            }
+        }
+    }
+
     public function index()
     {
         $program = ProgramGereja::orderBy('urutan')->paginate(10);
@@ -24,7 +50,11 @@ class ProgramController extends Controller
 
         $path = null;
         if ($request->hasFile('foto')) {
-            $path = $request->file('foto')->store('program', 'public');
+            $result = $this->getCloudinary()->uploadApi()->upload(
+                $request->file('foto')->getRealPath(),
+                ['folder' => 'gereja-shekinah/program']
+            );
+            $path = $result['secure_url'];
         }
 
         ProgramGereja::create([
@@ -63,8 +93,12 @@ class ProgramController extends Controller
         ];
 
         if ($request->hasFile('foto')) {
-            if ($program->foto) Storage::disk('public')->delete($program->foto);
-            $data['foto'] = $request->file('foto')->store('program', 'public');
+            $this->hapusDariCloudinary($program->foto);
+            $result = $this->getCloudinary()->uploadApi()->upload(
+                $request->file('foto')->getRealPath(),
+                ['folder' => 'gereja-shekinah/program']
+            );
+            $data['foto'] = $result['secure_url'];
         }
 
         $program->update($data);
@@ -76,7 +110,7 @@ class ProgramController extends Controller
     public function destroy($id)
     {
         $program = ProgramGereja::findOrFail($id);
-        if ($program->foto) Storage::disk('public')->delete($program->foto);
+        $this->hapusDariCloudinary($program->foto);
         $program->delete();
 
         return redirect()->route('admin.program')

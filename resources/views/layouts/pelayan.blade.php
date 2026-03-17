@@ -133,8 +133,8 @@
         {{-- User Info + Logout — Web button sudah dihapus, hanya Logout --}}
         <div class="border-t border-blue-700 px-3 py-3">
             <div class="flex items-center gap-3 mb-3">
-                @if(auth()->user()->foto && file_exists(public_path('storage/'.auth()->user()->foto)))
-                    <img src="{{ asset('storage/' . auth()->user()->foto) }}"
+                @if(auth()->user()->foto && str_starts_with(auth()->user()->foto, 'http'))
+                    <img src="{{ auth()->user()->foto }}"
                          alt="{{ auth()->user()->name }}"
                          class="w-8 h-8 rounded-full object-cover flex-shrink-0 ring-2 ring-blue-600 shadow-sm">
                 @else

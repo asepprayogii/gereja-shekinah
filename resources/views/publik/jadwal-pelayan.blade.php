@@ -98,7 +98,7 @@
                         ? $users->first(fn($u) => $u->name === $j->nama_pelayan)
                         : null;
                     $fotoUrl = $userPelayan && $userPelayan->foto
-                        ? asset('storage/' . $userPelayan->foto)
+                        ? $userPelayan->foto
                         : null;
                     $labelPosisi = $posisiList[$j->posisi]
                         ?? ucwords(str_replace('_', ' ', $j->posisi));

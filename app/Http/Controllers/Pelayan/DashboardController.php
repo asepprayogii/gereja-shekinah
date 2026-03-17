@@ -9,15 +9,41 @@ use App\Models\TukarJadwal;
 use App\Models\User;
 use Illuminate\Http\Request;
 use Carbon\Carbon;
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
 
 class DashboardController extends Controller
 {
+    private function getCloudinary()
+    {
+        return new Cloudinary(
+            Configuration::instance([
+                'cloud' => [
+                    'cloud_name' => config('cloudinary.cloud_name'),
+                    'api_key'    => config('cloudinary.api_key'),
+                    'api_secret' => config('cloudinary.api_secret'),
+                ],
+                'url' => ['secure' => true]
+            ])
+        );
+    }
+
+    private function hapusDariCloudinary($fotoUrl)
+    {
+        if ($fotoUrl && str_starts_with($fotoUrl, 'http')) {
+            $path = parse_url($fotoUrl, PHP_URL_PATH);
+            preg_match('/upload\/(?:v\d+\/)?(.+)\.\w+$/', $path, $matches);
+            if (!empty($matches[1])) {
+                $this->getCloudinary()->uploadApi()->destroy($matches[1]);
+            }
+        }
+    }
+
     public function index()
     {
         $userId = auth()->id();
         $nama   = auth()->user()->name;
 
-        // Jadwal dari jadwal_pelayanan (sistem lama)
         $jadwalPelayanan = JadwalPelayanan::with('kegiatan')
             ->where('user_id', $userId)
             ->whereHas('kegiatan', function ($q) {
@@ -26,7 +52,6 @@ class DashboardController extends Controller
             ->orderBy('created_at', 'desc')
             ->take(5)->get();
 
-        // Jadwal dari jadwal_ibadah_minggu (sistem baru) — cari berdasarkan nama
         $jadwalMinggu = JadwalIbadahMinggu::where('nama_pelayan', $nama)
             ->where('tanggal', '>=', now()->toDateString())
             ->orderBy('tanggal')
@@ -50,13 +75,11 @@ class DashboardController extends Controller
         $userId = auth()->id();
         $nama   = auth()->user()->name;
 
-        // Dari jadwal_pelayanan
         $jadwalPelayanan = JadwalPelayanan::with('kegiatan')
             ->where('user_id', $userId)
             ->orderBy('created_at', 'desc')
             ->paginate(10, ['*'], 'page_pelayanan');
 
-        // Dari jadwal_ibadah_minggu
         $jadwalMinggu = JadwalIbadahMinggu::where('nama_pelayan', $nama)
             ->orderBy('tanggal', 'desc')
             ->paginate(10, ['*'], 'page_minggu');
@@ -73,14 +96,12 @@ class DashboardController extends Controller
         $userId = auth()->id();
         $nama   = auth()->user()->name;
 
-        // Jadwal pelayanan mendatang (sistem lama)
         $myJadwalPelayanan = JadwalPelayanan::with('kegiatan')
             ->where('user_id', $userId)
             ->whereHas('kegiatan', function ($q) {
                 $q->where('tanggal', '>=', now()->toDateString());
             })->get();
 
-        // Jadwal ibadah minggu mendatang (sistem baru)
         $myJadwalMinggu = JadwalIbadahMinggu::where('nama_pelayan', $nama)
             ->where('tanggal', '>=', now()->toDateString())
             ->orderBy('tanggal')->get();
@@ -101,22 +122,20 @@ class DashboardController extends Controller
         ));
     }
 
-        public function storeTukarJadwal(Request $request)
+    public function storeTukarJadwal(Request $request)
     {
         $request->validate([
-            'tipe'            => 'required|in:pelayanan,minggu',
-            'jadwal_id'       => 'nullable|exists:jadwal_pelayanan,id',
-            'jadwal_minggu_id'=> 'nullable|exists:jadwal_ibadah_minggu,id',
-            'alasan'          => 'required|string|max:500',
-            'pengganti_id'    => 'nullable|exists:users,id',
+            'tipe'             => 'required|in:pelayanan,minggu',
+            'jadwal_id'        => 'nullable|exists:jadwal_pelayanan,id',
+            'jadwal_minggu_id' => 'nullable|exists:jadwal_ibadah_minggu,id',
+            'alasan'           => 'required|string|max:500',
+            'pengganti_id'     => 'nullable|exists:users,id',
         ]);
 
-        // Validasi sesuai tipe
         if ($request->tipe === 'pelayanan') {
             if (!$request->jadwal_id) {
                 return back()->with('error', 'Pilih jadwal pelayanan!');
             }
-            // Pastikan jadwal milik user ini
             JadwalPelayanan::where('id', $request->jadwal_id)
                 ->where('user_id', auth()->id())
                 ->firstOrFail();
@@ -129,13 +148,11 @@ class DashboardController extends Controller
                 'alasan'       => $request->alasan,
                 'status'       => 'menunggu',
             ]);
-
         } else {
             if (!$request->jadwal_minggu_id) {
                 return back()->with('error', 'Pilih jadwal ibadah minggu!');
             }
-            // Pastikan jadwal ini memang milik user (nama sama)
-            $jadwal = JadwalIbadahMinggu::where('id', $request->jadwal_minggu_id)
+            JadwalIbadahMinggu::where('id', $request->jadwal_minggu_id)
                 ->where('nama_pelayan', auth()->user()->name)
                 ->firstOrFail();
 
@@ -172,11 +189,12 @@ class DashboardController extends Controller
         ];
 
         if ($request->hasFile('foto')) {
-            // Hapus foto lama
-            if (auth()->user()->foto) {
-                \Illuminate\Support\Facades\Storage::disk('public')->delete(auth()->user()->foto);
-            }
-            $data['foto'] = $request->file('foto')->store('profil', 'public');
+            $this->hapusDariCloudinary(auth()->user()->foto);
+            $result = $this->getCloudinary()->uploadApi()->upload(
+                $request->file('foto')->getRealPath(),
+                ['folder' => 'gereja-shekinah/profil']
+            );
+            $data['foto'] = $result['secure_url'];
         }
 
         auth()->user()->update($data);
