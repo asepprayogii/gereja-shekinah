@@ -15,8 +15,8 @@
     <div class="columns-2 md:columns-3 lg:columns-4 gap-3 space-y-3">
         @foreach($galeri as $g)
         <div class="break-inside-avoid group relative overflow-hidden rounded-xl bg-gray-100 cursor-pointer"
-             onclick="openLightbox('{{ asset('storage/'.$g->foto) }}','{{ $g->judul }}')">
-            <img src="{{ asset('storage/'.$g->foto) }}"
+             onclick="openLightbox('{{ $g->foto }}','{{ $g->judul }}')">
+            <img src="{{ $g->foto }}"
                  alt="{{ $g->judul }}"
                  class="w-full object-cover group-hover:scale-105 transition-transform duration-500">
             <div class="absolute inset-0 bg-black/0 group-hover:bg-black/40 transition-colors duration-300

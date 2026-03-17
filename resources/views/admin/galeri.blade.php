@@ -106,7 +106,7 @@
     <div class="grid grid-cols-2 sm:grid-cols-3 lg:grid-cols-4 gap-3">
         @foreach($galeri as $g)
         <div class="group relative overflow-hidden rounded-xl border border-gray-100 bg-gray-50">
-            <img src="{{ asset('storage/' . $g->foto) }}"
+            <img src="{{ $g->foto }}"
                  alt="{{ $g->judul }}"
                  class="w-full h-36 sm:h-40 object-cover group-hover:scale-105 transition duration-300">
 

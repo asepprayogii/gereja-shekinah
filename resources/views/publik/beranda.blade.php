@@ -53,7 +53,7 @@ section[id] { scroll-margin-top: 100px; }
     @foreach($slideshow as $i => $slide)
     <div class="slide absolute inset-0 transition-opacity duration-1000"
          style="opacity:{{ $i===0?'1':'0' }}">
-        <img src="{{ asset('storage/'.$slide->foto) }}"
+        <img src="{{ $slide->foto }}"
              alt="GPdI Shekinah"
              class="w-full h-full object-cover opacity-50">
     </div>
