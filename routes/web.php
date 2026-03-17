@@ -234,6 +234,8 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     Route::get('/kalender/{id}/edit', [App\Http\Controllers\Admin\KalenderController::class, 'edit'])->name('admin.kalender.edit');
     Route::put('/kalender/{id}', [App\Http\Controllers\Admin\KalenderController::class, 'update'])->name('admin.kalender.update');
     Route::delete('/kalender/{id}', [App\Http\Controllers\Admin\KalenderController::class, 'destroy'])->name('admin.kalender.destroy');
+    Route::post('/kalender/template', [App\Http\Controllers\Admin\KalenderController::class, 'storeTemplate'])->name('admin.kalender.template.store');
+    Route::delete('/kalender/template/{id}', [App\Http\Controllers\Admin\KalenderController::class, 'destroyTemplate'])->name('admin.kalender.template.destroy');
 
 
            /*
