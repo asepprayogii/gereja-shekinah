@@ -269,15 +269,15 @@ Route::prefix('admin')->middleware(['auth', 'role:admin'])->group(function () {
     */
 
     // Tampil halaman jadwal WL
-    Route::get('/jadwal-wl', [App\Http\Controllers\Admin\JadwalWlController::class, 'index'])
+    Route::get('/jadwal-wl', [App\Http\Controllers\Admin\JadwalWLController::class, 'index'])
         ->name('admin.jadwal-wl');
 
     // Simpan/Update WL
-    Route::post('/jadwal-wl', [App\Http\Controllers\Admin\JadwalWlController::class, 'store'])
+    Route::post('/jadwal-wl', [App\Http\Controllers\Admin\JadwalWLController::class, 'store'])
         ->name('admin.jadwal-wl.store');
 
     // Hapus WL
-    Route::delete('/jadwal-wl/{id}', [App\Http\Controllers\Admin\JadwalWlController::class, 'destroy'])
+    Route::delete('/jadwal-wl/{id}', [App\Http\Controllers\Admin\JadwalWLController::class, 'destroy'])
         ->name('admin.jadwal-wl.destroy');
 
     /*
