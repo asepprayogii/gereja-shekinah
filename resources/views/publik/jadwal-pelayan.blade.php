@@ -24,8 +24,8 @@
             <p class="text-xs text-blue-400 uppercase tracking-widest font-medium">Ibadah Minggu</p>
             <p class="font-bold text-white mt-0.5 text-lg">{{ $tanggalIbadah->translatedFormat('l, d F Y') }}</p>
         </div>
-        <div class="ml-auto">
-            <span class="bg-blue-700 text-blue-200 text-[10px] font-semibold uppercase tracking-widest px-3 py-1.5 rounded-full">
+        <div class="ml-auto flex-shrink-0">
+            <span class="bg-blue-700 text-blue-200 text-[10px] font-semibold uppercase tracking-widest px-2.5 py-1.5 rounded-full whitespace-nowrap">
                 Minggu Ini
             </span>
         </div>
