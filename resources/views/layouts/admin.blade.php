@@ -127,7 +127,7 @@
             @php
             $menuJadwal = [
                 ['route'=>'admin.kalender',             'label'=>'Kalender Kegiatan',   'icon'=>'M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z', 'badge'=>null],
-                ['route'=>'admin.jadwal-ibadah-minggu', 'label'=>'Jadwal Ibadah',       'icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'badge'=>null],
+                ['route'=>'admin.jadwal-ibadah-minggu', 'label'=>'Jadwal Pelayan Minggu',       'icon'=>'M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0z', 'badge'=>null],
                 ['route'=>'admin.jadwal-wl',            'label'=>'Jadwal WL',           'icon'=>'M19 11a7 7 0 01-7 7m0 0a7 7 0 01-7-7m7 7v4m0 0H8m4 0h4m-4-8a3 3 0 01-3-3V5a3 3 0 116 0v6a3 3 0 01-3 3z', 'badge'=>null],
                 ['route'=>'admin.tukar-jadwal',         'label'=>'Tukar Jadwal',        'icon'=>'M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15', 'badge'=>\App\Models\TukarJadwal::where('status','menunggu')->count()],
             ];
