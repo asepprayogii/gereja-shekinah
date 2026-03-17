@@ -39,8 +39,15 @@ class SlideshowController extends Controller
     public function destroy($id)
     {
         $slide = HeroSlideshow::findOrFail($id);
-        $publicId = pathinfo(parse_url($slide->foto, PHP_URL_PATH), PATHINFO_FILENAME);
-        Cloudinary::destroy('gereja-shekinah/slideshow/' . $publicId);
+
+        if (str_starts_with($slide->foto, 'http')) {
+            $path = parse_url($slide->foto, PHP_URL_PATH);
+            preg_match('/upload\/(?:v\d+\/)?(.+)\.\w+$/', $path, $matches);
+            if (!empty($matches[1])) {
+                Cloudinary::destroy($matches[1]);
+            }
+        }
+
         $slide->delete();
 
         HeroSlideshow::orderBy('urutan')->get()->each(function ($s, $i) {
