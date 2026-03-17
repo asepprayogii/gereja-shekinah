@@ -5,10 +5,25 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\Galeri;
 use Illuminate\Http\Request;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
 
 class GaleriController extends Controller
 {
+    private function getCloudinary()
+    {
+        return new Cloudinary(
+            Configuration::instance([
+                'cloud' => [
+                    'cloud_name' => config('cloudinary.cloud_name'),
+                    'api_key'    => config('cloudinary.api_key'),
+                    'api_secret' => config('cloudinary.api_secret'),
+                ],
+                'url' => ['secure' => true]
+            ])
+        );
+    }
+
     public function index()
     {
         $galeri = Galeri::orderBy('created_at', 'desc')->paginate(12);
@@ -22,13 +37,15 @@ class GaleriController extends Controller
             'judul' => 'nullable|string|max:255',
         ]);
 
-        $uploaded = Cloudinary::upload($request->file('foto')->getRealPath(), [
-            'folder' => 'gereja-shekinah/galeri'
-        ]);
+        $cloudinary = $this->getCloudinary();
+        $result = $cloudinary->uploadApi()->upload(
+            $request->file('foto')->getRealPath(),
+            ['folder' => 'gereja-shekinah/galeri']
+        );
 
         Galeri::create([
             'judul'            => $request->judul,
-            'foto'             => $uploaded->getSecurePath(),
+            'foto'             => $result['secure_url'],
             'kategori'         => $request->kategori,
             'tanggal_kegiatan' => $request->tanggal_kegiatan,
         ]);
@@ -40,8 +57,16 @@ class GaleriController extends Controller
     public function destroy($id)
     {
         $galeri = Galeri::findOrFail($id);
-        $publicId = pathinfo(parse_url($galeri->foto, PHP_URL_PATH), PATHINFO_FILENAME);
-        Cloudinary::destroy('gereja-shekinah/galeri/' . $publicId);
+
+        if (str_starts_with($galeri->foto, 'http')) {
+            $path = parse_url($galeri->foto, PHP_URL_PATH);
+            preg_match('/upload\/(?:v\d+\/)?(.+)\.\w+$/', $path, $matches);
+            if (!empty($matches[1])) {
+                $cloudinary = $this->getCloudinary();
+                $cloudinary->uploadApi()->destroy($matches[1]);
+            }
+        }
+
         $galeri->delete();
 
         return redirect()->route('admin.galeri')

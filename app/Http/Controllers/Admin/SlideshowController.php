@@ -5,10 +5,25 @@ namespace App\Http\Controllers\Admin;
 use App\Http\Controllers\Controller;
 use App\Models\HeroSlideshow;
 use Illuminate\Http\Request;
-use CloudinaryLabs\CloudinaryLaravel\Facades\Cloudinary;
+use Cloudinary\Cloudinary;
+use Cloudinary\Configuration\Configuration;
 
 class SlideshowController extends Controller
 {
+    private function getCloudinary()
+    {
+        return new Cloudinary(
+            Configuration::instance([
+                'cloud' => [
+                    'cloud_name' => config('cloudinary.cloud_name'),
+                    'api_key'    => config('cloudinary.api_key'),
+                    'api_secret' => config('cloudinary.api_secret'),
+                ],
+                'url' => ['secure' => true]
+            ])
+        );
+    }
+
     public function index()
     {
         $slideshow = HeroSlideshow::orderBy('urutan')->get();
@@ -21,12 +36,14 @@ class SlideshowController extends Controller
             'foto' => 'required|image|mimes:jpg,jpeg,png,webp|max:3072',
         ]);
 
-        $uploaded = Cloudinary::upload($request->file('foto')->getRealPath(), [
-            'folder' => 'gereja-shekinah/slideshow'
-        ]);
+        $cloudinary = $this->getCloudinary();
+        $result = $cloudinary->uploadApi()->upload(
+            $request->file('foto')->getRealPath(),
+            ['folder' => 'gereja-shekinah/slideshow']
+        );
 
         HeroSlideshow::create([
-            'foto'            => $uploaded->getSecurePath(),
+            'foto'            => $result['secure_url'],
             'urutan'          => HeroSlideshow::count() + 1,
             'object_position' => $request->object_position ?? 'center',
             'is_active'       => $request->has('is_active'),
@@ -44,7 +61,8 @@ class SlideshowController extends Controller
             $path = parse_url($slide->foto, PHP_URL_PATH);
             preg_match('/upload\/(?:v\d+\/)?(.+)\.\w+$/', $path, $matches);
             if (!empty($matches[1])) {
-                Cloudinary::destroy($matches[1]);
+                $cloudinary = $this->getCloudinary();
+                $cloudinary->uploadApi()->destroy($matches[1]);
             }
         }
 
